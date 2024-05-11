@@ -10,6 +10,7 @@
 #include <iostream>
 #include <fstream>
 #include "map.h"
+#include "food.h"
     using namespace std;
 pthread_mutex_t logic_mutex = PTHREAD_MUTEX_INITIALIZER ;
 class PACMAN{

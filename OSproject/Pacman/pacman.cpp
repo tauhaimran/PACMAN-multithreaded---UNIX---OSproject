@@ -25,9 +25,13 @@ pthread_t red_id,blue_id,yellow_id,pink_id;
 //global variables for the threads...
 bool game_running = true;
 bool paused=false;
+//globl resources...
 MAP mapX;
 PACMAN pacman(670,605,1.0f);
 GHOST ghostObj (660, 610,5.0f);
+food_chain eatabits;
+
+//thread 1 - game engine
 void *game_engine(void*arg){
     sf::RenderWindow* window = (sf::RenderWindow*)arg;
     int x=650.0 , y=605.0;
@@ -122,7 +126,11 @@ int main(int argc, char const *argv[])
         //ghost.draw(window);
         //ghostObj.draw(window);
         mapX.drawmap(window);
+       
         pacman.draw(window);
+
+         eatabits.draw_food(window);
+         
         window.display();  
         
         //wake up consumer
