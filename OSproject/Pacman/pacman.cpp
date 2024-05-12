@@ -97,6 +97,18 @@ void *ghost(void*arg){
 int main(int argc, char const *argv[])
 {
 
+    sf::Sprite left_panel;
+    sf::Texture left_texture;
+
+     if (!left_texture.loadFromFile("img/left_panel.png")) {
+            // Error handling if the image fails to load
+            throw std::runtime_error("Failed to load Pacman texture.");
+        }
+    
+        left_panel.setTexture(left_texture);
+        left_panel.setPosition(3,0);
+        left_panel.setScale(0.35f,0.35f);
+
 
     //unlinking all the previous semaphores
     sem_init(&SEM_GAME_ENGINE,0,0); //initial value 0 - will wait
@@ -104,6 +116,8 @@ int main(int argc, char const *argv[])
 
     //creating semaphores
     //sem_t* sem_game_engine = sem_open(SEM_GAME_ENGINE, IPC_CREAT , 0660 , 0);
+
+
 
     sf::RenderWindow window(sf::VideoMode(1300,670), "PACAMAN | OS-project fall 24 | 22i1239 & 22i1335 " );
     sf::RenderWindow* xwindow = &window;
@@ -122,14 +136,19 @@ int main(int argc, char const *argv[])
         //cout << "Producer\n";
         
         window.clear(); // Light gray color
-        
+
+
         //ghost.draw(window);
         //ghostObj.draw(window);
+        
+        window.draw(left_panel);
+
         mapX.drawmap(window);
-       
+        eatabits.draw_food(window);
+        
         pacman.draw(window);
 
-         eatabits.draw_food(window);
+    
          
         window.display();  
         

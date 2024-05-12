@@ -61,12 +61,12 @@ public:
         float xPos = spritePosition.x;
         float yPos = spritePosition.y;
 
-        if(move<30 && right){ move++; 
-            if(horizontal){xPos++;}//move right
-            else {yPos++;} }//or down 
+        if(move<60 && right){ move++; 
+            if(horizontal){xPos+=0.5f;}//move right
+            else {yPos+=0.5f;} }//or down 
         if(move>0 && !right){ move--; 
-            if(horizontal){xPos--;}//move rleft
-            else {yPos--;} }//or up 
+            if(horizontal){xPos-=0.5f;}//move rleft
+            else {yPos-=0.5f;} }//or up 
         if(move==30 && right){ right = false;}//change to lefting
         if(move==0 && !right){ right = true;}//change to righting
         
@@ -155,6 +155,7 @@ public:
 
         gbox.setTexture(box);
         gbox.setOrigin(gbox.getLocalBounds().width / 2.0f, gbox.getLocalBounds().height / 2.0f);
+         gbox.setScale(1.25f,1.25f);
         gbox.setPosition(650,320);
 
          border.setTexture(texture);

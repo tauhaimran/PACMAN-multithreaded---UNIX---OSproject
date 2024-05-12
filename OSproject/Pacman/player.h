@@ -55,10 +55,10 @@ public:
             char xdr = dr;
             float x_error = 0.0;
             float y_error = 0.0;
-                if(dr=='R'){ x+=0.75; angle = 0;}//Right
-                if(dr=='L'){ x-=0.75; angle = 180;}//Left
-                if(dr=='U'){ y-=0.75; angle = 270;}//Up
-                if(dr=='D'){ y+=0.75; angle = 90;}//Down
+                if(dr=='R'){ x+=1; angle = 0;}//Right
+                if(dr=='L'){ x-=1; angle = 180;}//Left
+                if(dr=='U'){ y-=1; angle = 270;}//Up
+                if(dr=='D'){ y+=1; angle = 90;}//Down
                 
                 sprite.setPosition(x, y);
                 sprite.setRotation(angle);
@@ -70,13 +70,12 @@ public:
                  {
                         
                     // Update the position of the sprite
-                    if(dr=='R'){ x-=0.75; angle = 0;}//Right
-                    if(dr=='L'){ x+=0.75; angle = 180;}//Left
-                    if(dr=='U'){ y+=0.75; angle = 270;}//Up
-                    if(dr=='D'){ y-=0.75; angle = 90;}//Down
+                    if(dr=='R'){ x-=1; angle = 0;}//Right
+                    if(dr=='L'){ x+=1; angle = 180;}//Left
+                    if(dr=='U'){ y+=1; angle = 270;}//Up
+                    if(dr=='D'){ y-=1; angle = 90;}//Down
                      sprite.setPosition(x, y);
                      sprite.setRotation(angle);
-                
                 }
         pthread_mutex_unlock(&logic_mutex); //unclocking
         //cout << "x - " << x << "-" << y << endl;

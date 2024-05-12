@@ -109,21 +109,54 @@ public:
         eatabits[39].food_bit.setPosition(800.0f,400.f);
         eatabits[40].food_bit.setPosition(850.0f,400.f);
         eatabits[41].food_bit.setPosition(900.0f,400.f);
-        //eatabits[41].food_bit.setPosition(900.0f,400.f);
  
-        
+        //row5 
+        eatabits[42].food_bit.setPosition(400.0f,500.f);
+        eatabits[43].food_bit.setPosition(450.0f,500.f);
+        eatabits[44].food_bit.setPosition(500.0f,500.f);
+            eatabits[45].food_bit.setPosition(610.0f,500.f);
+            eatabits[46].food_bit.setPosition(660.0f,500.f);
+            eatabits[47].food_bit.setPosition(710.0f,500.f);
+                eatabits[48].food_bit.setPosition(810.0f,500.f);
+                eatabits[49].food_bit.setPosition(860.0f,500.f);
+                eatabits[50].food_bit.setPosition(900.0f,500.f);
 
-        //row5
 
-        //row6
+        //row4
+        eatabits[51].food_bit.setPosition(400.0f,600.f);     
+        eatabits[52].food_bit.setPosition(450.0f,600.f);
+        eatabits[53].food_bit.setPosition(500.0f,600.f);
+        eatabits[54].food_bit.setPosition(550.0f,600.f);
+        eatabits[55].food_bit.setPosition(600.0f,600.f);
+        eatabits[56].food_bit.setPosition(650.0f,600.f);
+        eatabits[57].food_bit.setPosition(700.0f,600.f);
+        eatabits[58].food_bit.setPosition(750.0f,600.f);
+        eatabits[59].food_bit.setPosition(800.0f,600.f);
+        eatabits[60].food_bit.setPosition(850.0f,600.f);
+        eatabits[61].food_bit.setPosition(900.0f,600.f);
 
+        //row7
+        eatabits[62].food_bit.setPosition(400.0f,300.f);
+        eatabits[63].food_bit.setPosition(450.0f,300.f);
+        eatabits[64].food_bit.setPosition(530.0f,300.f);
+            eatabits[65].food_bit.setPosition(750.0f,300.f);
+            eatabits[66].food_bit.setPosition(860.0f,300.f);
+            eatabits[67].food_bit.setPosition(900.0f,300.f);
     }
 
     void draw_food(sf::RenderWindow &window)
     {
+          pthread_mutex_lock(&food_mutex);//locking..
         //eatabits[0].food_bit.setColor(255,255,255);
-        for(int i = 0 ; i<42 ; i++)
-        eatabits[i].drawbit(window);
+        for(int i = 0 ; i<68 ; i++)
+        {
+            if(!eatabits[i].eaten){
+                eatabits[i].drawbit(window);
+            }
+        }
+        pthread_mutex_unlock(&food_mutex); //unclocking
+
+        return;
         
     }
     
