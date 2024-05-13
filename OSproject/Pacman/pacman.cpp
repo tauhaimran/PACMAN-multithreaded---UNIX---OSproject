@@ -27,6 +27,7 @@ bool game_running = true;
 bool paused=false;
 //globl resources...
 MAP mapX;
+STATUS status;
 PACMAN pacman(670,605,1.0f);
 GHOST ghostObj (660, 610,5.0f);
 food_chain eatabits;
@@ -71,8 +72,11 @@ void *game_engine(void*arg){
 
 
             }
-            pacman.move(dir,mapX);
-            
+            pacman.move(dir,mapX); //moving pacman
+
+            //checking food +  updating score
+            if(eatabits.if_eaten(pacman.sprite))
+            {status.score+=10;}
             //cout << "plz work\n";
            
             //wake up producer
@@ -154,6 +158,7 @@ int main(int argc, char const *argv[])
         
         window.draw(right_panel);
         window.draw(left_panel);
+        status.display(window);
 
         mapX.drawmap(window);
         eatabits.draw_food(window);

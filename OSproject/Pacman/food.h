@@ -9,6 +9,8 @@
 #include <signal.h>
 #include <iostream>
 #include <fstream>
+#include <cmath>
+#include <math.h>
     using namespace std;
 
 pthread_mutex_t food_mutex = PTHREAD_MUTEX_INITIALIZER ;
@@ -56,7 +58,7 @@ public:
 
 class food_chain{
 public:
-    food_pellet eatabits[100];
+    food_pellet eatabits[69];
 
     food_chain(){
         
@@ -164,8 +166,22 @@ public:
 
     bool if_eaten(sf::Sprite &player){
 
-        
+        pthread_mutex_lock(&food_mutex);//locking..
+         for(int i = 0 ; i<68 ; i++)
+        {
+            if((!eatabits[i].eaten)){
+                
+                if( ( abs(eatabits[i].food_bit.getPosition().x - player.getPosition().x)<=9 )
+                    && ( abs(eatabits[i].food_bit.getPosition().y - player.getPosition().y)<=9) ){
 
+                    eatabits[i].is_eaten();
+                     pthread_mutex_unlock(&food_mutex); //unclocking
+                    return true;
+                }
+                
+            }
+        }
+         pthread_mutex_unlock(&food_mutex); //unclocking
         return false;
     }
 

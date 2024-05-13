@@ -9,81 +9,72 @@
 #include <signal.h>
 #include <iostream>
 #include <fstream>
+#include <iomanip>
+#include <sstream>
 #include "player.h"
+#include "ghost.h"
 
     using namespace std;
 
 //helping mutexes
+pthread_mutex_t status_mutex = PTHREAD_MUTEX_INITIALIZER ;
 
+class STATUS {
 
-
-class GHOST{
-
-private:
-    sf::Texture texture1;
-    sf::Texture texture2;
-    sf::Sprite sprite;
-    int frame1,frame2;
-    float x, y;
-    float speed; 
-    char dir;
-    float angle;
 public:
-    GHOST(float startX, float startY, float movementSpeed) 
-        : x(startX), y(startY), speed(movementSpeed)
-    {
-        // Load the Pacman texture
-        if (!texture1.loadFromFile("img/ghost.png") && !texture2.loadFromFile("img/ghost1.png")) {
-            // Error handling if the image fails to load
-            throw std::runtime_error("Failed to load Pacman texture.");
-        }
-        texture2.loadFromFile("img/ghost1.png");
-        // Set the texture to the sprite
-        sprite.setTexture(texture1);
-        sprite.setScale(0.09f,0.09f);
-        sprite.setOrigin(sprite.getLocalBounds().width / 2.0f, sprite.getLocalBounds().height / 2.0f);
-        frame1 = 10;
-        frame2 = 0;
-        // Set the initial position of the sprite
-        sprite.setPosition(x, y);
-        sprite.setScale(0.1f, 0.1f);
+    int lives;
+    int score;
+    sf::Font font;
+    sf::Text text;
+    sf::Clock clock;
+    
+    STATUS(){
+ 
+        //variables
+        lives=3;
+        score=0;
+
+        if (!font.loadFromFile("font/Roboto-CondensedItalic.ttf")) 
+        { /* error handling */ }
+
+        
+        text.setFont(font);
+        text.setCharacterSize(35);
+        text.setFillColor(sf::Color::White);
     }
 
-    void move(char dr,sf::Sprite& maze) {
+    void display(sf::RenderWindow &window){
+
+     pthread_mutex_lock(&status_mutex); //locking        
+        text.setString(std::to_string(lives));
+        text.setPosition(170, 110);
+        window.draw(text);
         
-        float oldx = x , oldy=y ;
-	
-        // Update the position of the sprite
-        if(dr=='R'){ x+=100.0; angle = 0;}//Right
-        if(dr=='L'){ x-=100.0; angle = 180;}//Left
-        if(dr=='U'){ y-=100.0; angle = 270;}//Up
-        if(dr=='D'){ y+=100.0; angle = 90;}//Down
-        
-        
-        dir = dr;
-        sprite.setRotation(angle);
-        sprite.setPosition(x, y);
+        text.setString(std::to_string(score));
+        text.setPosition(170, 190);
+        window.draw(text);
 
-        //if colliding wiht the maze...
-        if(sprite.getGlobalBounds().intersects(maze.getGlobalBounds()))
-        {
-            //sprite.setRotation(0);
-            //if(dr=='R'){ x-=0.1; angle = 0;}//Right
-		//if(dr=='L'){ x+=0.1; angle = 180;}//Left
-		//if(dr=='U'){ y+=0.1; angle = 270;}//Up
-		//if(dr=='D'){ y-=0.1; angle = 90;}
-        }
+        sf::Time elapsed = clock.getElapsedTime();
+        int seconds = elapsed.asSeconds();
+        int minutes = seconds / 60;
+        int hours = minutes / 60;
+        seconds %= 60;
+        minutes %= 60;
 
-    }
+        std::ostringstream oss;
+        oss << std::setw(2) << std::setfill('0') << hours << ":"
+            << std::setw(2) << std::setfill('0') << minutes << ":"
+            << std::setw(2) << std::setfill('0') << seconds;
 
-    void draw(sf::RenderWindow& window) {
-        // Draw the sprite to the window
-        if(frame1>0 && frame2==0){frame1--;}
-        if(frame1==0 && frame2==0){ sprite.setTexture(texture2);frame2=5;}
-        if(frame2>0 && frame1==0){frame2--;}
-        if(frame1==0 && frame2==0){ sprite.setTexture(texture1); frame1=5;}
 
-        window.draw(sprite);
+        text.setString(oss.str());
+        text.setPosition(170, 265);
+        window.draw(text);
+
+           pthread_mutex_unlock(&status_mutex); //unclocking
+        return;
     }
 
 };
+
+

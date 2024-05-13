@@ -18,13 +18,17 @@ class PACMAN{
 private:
     sf::Texture texture1;
     sf::Texture texture2;
-    sf::Sprite sprite;
+   
     int frame1,frame2;
     float x, y;
     float speed; 
     char dir;
     float angle;
+
 public:
+
+ sf::Sprite sprite;
+
     PACMAN(float startX, float startY, float movementSpeed) 
         : x(startX), y(startY), speed(movementSpeed)
     {
@@ -55,10 +59,10 @@ public:
             char xdr = dr;
             float x_error = 0.0;
             float y_error = 0.0;
-                if(dr=='R'){ x+=1; angle = 0;}//Right
-                if(dr=='L'){ x-=1; angle = 180;}//Left
-                if(dr=='U'){ y-=1; angle = 270;}//Up
-                if(dr=='D'){ y+=1; angle = 90;}//Down
+                if(dr=='R'){ x+=1.5; angle = 0;}//Right
+                if(dr=='L'){ x-=1.5; angle = 180;}//Left
+                if(dr=='U'){ y-=1.5; angle = 270;}//Up
+                if(dr=='D'){ y+=1.5; angle = 90;}//Down
                 
                 sprite.setPosition(x, y);
                 sprite.setRotation(angle);
@@ -70,10 +74,10 @@ public:
                  {
                         
                     // Update the position of the sprite
-                    if(dr=='R'){ x-=1; angle = 0;}//Right
-                    if(dr=='L'){ x+=1; angle = 180;}//Left
-                    if(dr=='U'){ y+=1; angle = 270;}//Up
-                    if(dr=='D'){ y-=1; angle = 90;}//Down
+                    if(dr=='R'){ x-=1.5; angle = 0;}//Right
+                    if(dr=='L'){ x+=1.5; angle = 180;}//Left
+                    if(dr=='U'){ y+=1.5; angle = 270;}//Up
+                    if(dr=='D'){ y-=1.5; angle = 90;}//Down
                      sprite.setPosition(x, y);
                      sprite.setRotation(angle);
                 }
@@ -87,9 +91,9 @@ public:
     void draw(sf::RenderWindow& window) {
         // Draw the sprite to the window
         if(frame1>0 && frame2==0){frame1--;}
-        if(frame1==0 && frame2==0){ sprite.setTexture(texture2);frame2=50;}
+        if(frame1==0 && frame2==0){ sprite.setTexture(texture2);frame2=10;}
         if(frame2>0 && frame1==0){frame2--;}
-        if(frame1==0 && frame2==0){ sprite.setTexture(texture1); frame1=50;}
+        if(frame1==0 && frame2==0){ sprite.setTexture(texture1); frame1=10;}
 
         window.draw(sprite);
     }
