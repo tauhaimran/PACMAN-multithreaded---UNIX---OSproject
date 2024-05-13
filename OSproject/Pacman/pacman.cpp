@@ -99,15 +99,26 @@ int main(int argc, char const *argv[])
 
     sf::Sprite right_panel;
     sf::Texture right_texture;
+    sf::Sprite left_panel;
+    sf::Texture left_texture;
 
-     if (!right_texture.loadFromFile("img/right_panel.png")) {
+     if (!right_texture.loadFromFile("img/1.png")) {
             // Error handling if the image fails to load
             throw std::runtime_error("Failed to load Pacman texture.");
         }
     
+    if (!left_texture.loadFromFile("img/2.png")) {
+            // Error handling if the image fails to load
+            throw std::runtime_error("Failed to load Pacman texture.");
+        }
+
         right_panel.setTexture(right_texture);
-        right_panel.setPosition(970,0);
-        right_panel.setScale(0.35f,0.35f);
+        right_panel.setPosition(975,10);
+        right_panel.setScale(0.32f,0.32f);
+
+        left_panel.setTexture(left_texture);
+        left_panel.setPosition(5,25);
+        left_panel.setScale(0.32f,0.32f);
 
 
     //unlinking all the previous semaphores
@@ -142,6 +153,7 @@ int main(int argc, char const *argv[])
         //ghostObj.draw(window);
         
         window.draw(right_panel);
+        window.draw(left_panel);
 
         mapX.drawmap(window);
         eatabits.draw_food(window);
