@@ -8,6 +8,10 @@
 #include <stdio.h>
 #include<stdlib.h>
 #include <time.h>
+#include <stdlib.h>
+#include <sys/wait.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <signal.h>
 #include <iostream>
 #include "phase1.h"
@@ -30,6 +34,7 @@ pthread_t g1,g2,g3,g4;
 bool game_running = true;
 bool paused=false;
 int gbox_exiting=0;
+
 
 //globl resources...
 MAP mapX;
@@ -131,6 +136,7 @@ void *ghost_one(void*arg){
             if(ghost1.exiting_gbox){
                 //sem_wait(&SEM_SC3_GBOX); //1->0
                 ghost1.exit_gbox();
+                gbox_exiting=1;
                 //if(!ghost1.exiting_gbox)
                 //{sem_post(&SEM_SC3_GBOX);};
 
@@ -282,7 +288,7 @@ int main(int argc, char const *argv[])
     //unlinking all the previous semaphores
     sem_init(&SEM_GAME_ENGINE,0,0); //initial value 0 - will wait
     sem_init(&SEM_UI_THREAD,0,1); //initial value 1 - will run first
-    sem_init(&SEM_GHOST_THREAD,0,1); //initial value 3 - counting semaphore
+    sem_init(&SEM_GHOST_THREAD,0,2); //initial value 3 - counting semaphore
     sem_init(&SEM_SC3_GBOX,0,1); //this is for scenario
     //creating semaphores
     //sem_t* sem_game_engine = sem_open(SEM_GAME_ENGINE, IPC_CREAT , 0660 , 0);
@@ -302,7 +308,7 @@ int main(int argc, char const *argv[])
     pthread_create( &g2, NULL, ghost_two   , (void*)xwindow );
     pthread_create( &g3, NULL, ghost_three , (void*)xwindow );
     pthread_create( &g4, NULL, ghost_four  , (void*)xwindow );
-    
+
     
 
   
@@ -341,6 +347,7 @@ int main(int argc, char const *argv[])
     //closing the semaphores
     sem_destroy(&SEM_GAME_ENGINE);
     sem_destroy(&SEM_UI_THREAD);
+    sem_destroy(&SEM_GHOST_THREAD);
 
    pthread_exit(NULL);
    // return 0;
