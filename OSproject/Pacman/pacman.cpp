@@ -19,14 +19,16 @@ int count = 0;
 //named semaphores
 sem_t SEM_GAME_ENGINE;
 sem_t SEM_UI_THREAD;
+sem_t SEM_GHOST_THREAD;
 
 //making the threads
 pthread_t game_engine_id,ui_ux_id_1,pac_id;
-pthread_t red_id,blue_id,yellow_id,pink_id;	
+pthread_t g1,g2,g3,g4;	
 
 //global variables for the threads...
 bool game_running = true;
 bool paused=false;
+int gbox_exiting=0;
 
 //globl resources...
 MAP mapX;
@@ -49,6 +51,7 @@ void *game_engine(void*arg){
         while (window->isOpen() or true)
         { //consumer consumes
             sem_wait(&SEM_GAME_ENGINE);
+             //sem_wait(&SEM_GHOST_THREAD); //2->1
             sf::Event event;
             while (window->pollEvent(event))
             {
@@ -115,14 +118,40 @@ void *ghost_one(void*arg){
         { //consumer consumes
          //   ghostObj.move('L', mapX.sprite);
          //if(choosing[T_ticket]){   choosing[T_ticket]= ghostObj. }
-
+          sem_wait(&SEM_GHOST_THREAD); //1->0
             if(ghost1.exiting_gbox){
                 ghost1.exit_gbox();
             }
             else {
                 ghost1.move(pacman.sprite,mapX);
             }
+            sem_post(&SEM_GHOST_THREAD);//0->1
 
+
+        }
+    return NULL;
+}
+
+void *ghost_two(void*arg){
+    sf::RenderWindow* window = (sf::RenderWindow*)arg;
+    std::cout<<"aoun jee gay"<<endl;
+    int x=650.0 , y=605.0;
+  
+
+
+
+        while (window->isOpen() or true)
+        { //consumer consumes
+         //   ghostObj.move('L', mapX.sprite);
+         //if(choosing[T_ticket]){   choosing[T_ticket]= ghostObj. }
+          sem_wait(&SEM_GHOST_THREAD); //1->0
+            if(ghost2.exiting_gbox){
+                ghost2.exit_gbox();
+            }
+            else {
+                ghost2.move(pacman.sprite,mapX);
+            }
+            sem_post(&SEM_GHOST_THREAD);//0->1
 
 
         }
@@ -161,6 +190,7 @@ int main(int argc, char const *argv[])
     //unlinking all the previous semaphores
     sem_init(&SEM_GAME_ENGINE,0,0); //initial value 0 - will wait
     sem_init(&SEM_UI_THREAD,0,1); //initial value 1 - will run first
+    sem_init(&SEM_GHOST_THREAD,0,2); //initial value 3 - counting semaphore
 
     //creating semaphores
     //sem_t* sem_game_engine = sem_open(SEM_GAME_ENGINE, IPC_CREAT , 0660 , 0);
@@ -176,14 +206,15 @@ int main(int argc, char const *argv[])
     pthread_create( &game_engine_id, NULL, game_engine , (void*)xwindow );
     
     //our ghost thread...
-    pthread_create( &red_id, NULL, ghost_one , (void*)xwindow );
+    pthread_create( &g1, NULL, ghost_one , (void*)xwindow );
+    pthread_create( &g2, NULL, ghost_two , (void*)xwindow );
     
 
   
     while (window.isOpen())
     {   //producer
         sem_wait(&SEM_UI_THREAD); //this makes game engine wait
-        
+         
         //cout << "Producer\n";
         
         window.clear(); // Light gray color
@@ -191,6 +222,9 @@ int main(int argc, char const *argv[])
 
         //ghost.draw(window);
         ghost1.draw(window);
+        ghost2.draw(window);
+        ghost3.draw(window);
+        ghost4.draw(window);
         
         window.draw(right_panel);
         window.draw(left_panel);
