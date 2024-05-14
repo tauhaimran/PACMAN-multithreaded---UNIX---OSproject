@@ -44,6 +44,8 @@ pthread_t g1,g2,g3,g4;
 bool game_running = true;
 bool paused=false;
 int EXIT=1;
+int speed_boost_count=0;
+int speed_boost_runs=0;
 
 
 
@@ -106,7 +108,7 @@ void *game_engine(void*arg){
             }
             pacman.move(dir,mapX); //moving pacman
 
-                
+            
 
             //checking food +  updating score
             if(eatabits.if_eaten(pacman.sprite))
@@ -145,6 +147,45 @@ void *game_engine(void*arg){
                 //pthread_mutex_unlock(&main_mutex);//unlocking..
             }   
            
+
+                    //for speed boost..
+            if(speed_boost_count < 10 && speed_boost_runs==0){ speed_boost_count++;}
+            if(speed_boost_count == 10 && speed_boost_runs==0)
+            { 
+                int i =  rand()%2;
+                
+                
+                if(i==0){
+                    ghost1.set_speed_boost();
+                    ghost2.set_speed_boost();
+                        ghost1.move(pacman.sprite,mapX); 
+                        ghost1.move(pacman.sprite,mapX); 
+                        ghost1.move(pacman.sprite,mapX); 
+                            ghost2.move(pacman.sprite,mapX); 
+                            ghost2.move(pacman.sprite,mapX); 
+                            ghost2.move(pacman.sprite,mapX); 
+                    ghost1.rem_speed_boost();
+                    ghost2.rem_speed_boost();
+                }else{
+                     ghost3.set_speed_boost();
+                     ghost4.set_speed_boost();
+                        ghost3.move(pacman.sprite,mapX); 
+                        ghost3.move(pacman.sprite,mapX); 
+                        ghost3.move(pacman.sprite,mapX); 
+                            ghost4.move(pacman.sprite,mapX); 
+                            ghost4.move(pacman.sprite,mapX); 
+                            ghost4.move(pacman.sprite,mapX); 
+                     ghost3.rem_speed_boost();
+                     ghost4.rem_speed_boost();
+
+                }
+
+             speed_boost_runs++;
+            }
+            if(speed_boost_count >= 10 && speed_boost_runs>=1)
+            { speed_boost_count=0; speed_boost_runs=0;}
+
+
             //wake up producer
             //unlock_resource(5);//game-engine->5
             pthread_mutex_unlock(&main_mutex);
@@ -183,7 +224,7 @@ void *ghost_one(void*arg){
                 ghost1.move(pacman.sprite,mapX);
                 EXIT=2;
             }
-            
+
             //unlock_resource(4);//ghost1->4
             pthread_mutex_unlock(&main_mutex);
             sem_post(&SEM_GHOST_THREAD);//0->1

@@ -18,25 +18,7 @@
 
 //helping mutexes
 pthread_mutex_t status_mutex = PTHREAD_MUTEX_INITIALIZER ;
-int gbox_exiting=0;
-//helper function...
-bool get_movement_access(GHOST & G , int g_id){
-    if(gbox_exiting==0 and G.exiting_gbox){
-        gbox_exiting=g_id;
-        return true;
-    }
-    else if(gbox_exiting==g_id and G.exiting_gbox){
-        return true;
-    }
-    
-    if(gbox_exiting!=g_id || !G.exiting_gbox)
-    { return false;}
 
-     if(gbox_exiting==g_id || !G.exiting_gbox)
-    { gbox_exiting=0; return false;}
-
-    return false;
-}
 
 class STATUS {
 

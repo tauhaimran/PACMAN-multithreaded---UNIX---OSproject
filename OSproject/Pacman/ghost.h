@@ -20,6 +20,8 @@ class GHOST{
 private:
     sf::Texture texture1;
     sf::Texture texture2;
+    sf::Texture speeed;
+    sf::Texture scared;
     sf::Sprite sprite;
     int frame1,frame2;
     float x, y;
@@ -40,6 +42,14 @@ public:
             throw std::runtime_error("Failed to load Pacman texture.");}
 
         if(!texture2.loadFromFile("img/ghosty.png"))
+        {// Error handling if the image fails to load
+            throw std::runtime_error("Failed to load Pacman texture.");}
+
+        if(!speeed.loadFromFile("img/speed.png"))
+        {// Error handling if the image fails to load
+            throw std::runtime_error("Failed to load Pacman texture.");}
+
+        if(!scared.loadFromFile("img/speed.png"))
         {// Error handling if the image fails to load
             throw std::runtime_error("Failed to load Pacman texture.");}
 
@@ -228,5 +238,9 @@ public:
         return;       
 
     }
+
+
+    void set_speed_boost(){ sprite.setTexture(speeed); }
+    void rem_speed_boost(){ sprite.setTexture(texture1); }
 
 };
