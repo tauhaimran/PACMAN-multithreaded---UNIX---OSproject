@@ -53,8 +53,6 @@ public:
         
         float oldx = x , oldy=y ;
 	
-        
-        
        
             char xdr = dr;
             float x_error = 0.0;

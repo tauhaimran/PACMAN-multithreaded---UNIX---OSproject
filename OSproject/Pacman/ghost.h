@@ -4,11 +4,13 @@
 #include <semaphore.h> 
 #include <unistd.h> 
 #include <stdio.h>
+//#include <X11/Xlib.h>
 #include<stdlib.h>
 #include <time.h>
 #include <signal.h>
 #include <iostream>
 #include <fstream>
+#include <random>
 #include"player.h"
 
 pthread_mutex_t ghost_mutex = PTHREAD_MUTEX_INITIALIZER ;
@@ -69,45 +71,102 @@ public:
             else {return false;}
     }
 
+    //function to move the ghost...
     void move(sf::Sprite & player, MAP &mapX) {
-        
+        static bool hv = true; //true - horizontal.. // false vertical
 
          pthread_mutex_lock(&ghost_mutex);//locking..
+        
+        float oldx = x , oldy = y;
         float px = player.getPosition().x , py=player.getPosition().y ;
 
-        if(x>px){ dir = 'R' ;}
-        if(x<px){ dir = 'L' ;}
-        if(y>py){ dir = 'D' ;}
-        if(y>py){ dir = 'U' ;}
+        /*if(px>x ){ dir = 'R' ;}
+         else if(px<x){ dir = 'L' ;}
+         else if(py>y){ dir = 'D' ;}
 
-	
+         else if(py<y){ dir = 'U' ;}*/
+
+          //dir = rand_dir()  ;
         // Update the position of the sprite
         
 
-        if(dir=='R'){ x+=0.01; angle = 0;}//Right
-        if(dir=='L'){ x-=0.01; angle = 180;}//Left
-        if(dir=='U'){ y-=0.01; angle = 270;}//Up
-        if(dir=='D'){ y+=0.01; angle = 90;}//Down
+        if(dir=='R'){ x+=0.0005; angle = 0;}//Right
+        if(dir=='L'){ x-=0.0005; angle = 0;}//Left
+        if(dir=='U'){ y-=0.0005; angle = 0;}//Up
+        if(dir=='D'){ y+=0.0005; angle = 0;}//Down
         
         
         sprite.setRotation(angle);
         sprite.setPosition(x, y);
 
         //if colliding wiht the maze...
-        if(mapX.internal_collision(sprite) || !(sprite.getGlobalBounds().intersects(mapX.background.getGlobalBounds())) )
+        
+        if(mapX.internal_collision(sprite) )
         {
             //sprite.setRotation(0);
-            if(dir=='R'){ x-=0.1; angle = 0;  dir = 'D';}//Right
-		    if(dir=='L'){ x+=0.1; angle = 180; dir = 'U';}//Left
-		    if(dir=='U'){ y+=0.1; angle = 270; dir = 'R';}//Up
-		    if(dir=='D'){ y-=0.1; angle = 90;  dir = 'L';}//down
-            cout << "colliding";
+           
+            x = oldx , y = oldy;
+            sprite.setPosition(x, y);
+
+            if(px>x & hv ){ dir = 'R' ;  hv=!hv;}
+                else if(px<x & hv ){ dir = 'L' ; hv=!hv;}
+                else if(py>y & !hv){ dir = 'D' ; hv=!hv;}
+                else if(py<y & !hv){ dir = 'U' ;hv=!hv;}
+
+            /**
+            if(dir=='R'){ x-=0.0005; angle = 0;  }//Right
+		    if(dir=='L'){ x+=0.0005; angle = 0; }//Left
+		    if(dir=='U'){ y+=0.0005; angle = 0; }//Up
+		    if(dir=='D'){ y-=0.0005; angle = 0; }//down
+             sprite.setPosition(x, y);*/
+             
+            //cout << !(sprite.getGlobalBounds().intersects(mapX.background.getGlobalBounds())) << endl; //"colliding";
+        }
+
+        if(!(sprite.getGlobalBounds().intersects(mapX.background.getGlobalBounds())))
+        {
+            //x = oldx , y = oldy;
+            //sprite.setPosition(x, y);
+
+                cout << "here...";
+            
+            
+                if(dir=='R'){ x-=25; angle = 0; }//Right
+                if(dir=='L'){ x+=25; angle = 0; }//Left
+                if(dir=='U'){ y+=25; angle = 0; }//Up
+                if(dir=='D'){ y-=25; angle = 0; }//down
+             //sprite.setPosition(x, y);
+    
+                
+            if(px>x & hv ){ dir = 'R' ;  hv=!hv;}
+                else if(px<x & hv ){ dir = 'L' ; hv=!hv;}
+                else if(py>y & !hv){ dir = 'D' ; hv=!hv;}
+                else if(py<y & !hv){ dir = 'U' ;hv=!hv;}
+            
+            sprite.setPosition(x, y);
+            //cout << !(sprite.getGlobalBounds().intersects(mapX.background.getGlobalBounds())) << endl; //"colliding";
         }
 
         pthread_mutex_unlock(&ghost_mutex);//unlocking..
         return;
 
     }
+
+//for the random direction change
+        char rand_dir(){
+
+            //the random number generator
+            int randomValue = (rand()%4)+1;
+            
+
+            if(randomValue==1){return 'R';}
+            if(randomValue==2){return 'L';}
+            if(randomValue==3){return 'U';}
+            if(randomValue==4){return 'P';}
+
+            return 'R';
+        }
+
 
     void draw(sf::RenderWindow& window) {
 
@@ -128,17 +187,21 @@ public:
     void exit_gbox(){
 
         pthread_mutex_lock(&ghost_mutex);//locking..
-        if(x>650){x-=0.2f;  pthread_mutex_unlock(&ghost_mutex);//unlocking..
+        if(x>650){x-=0.0001f; sleep(0.01); pthread_mutex_unlock(&ghost_mutex);//unlocking..
                             return ;}
-        if(x<650){x+=0.2f;  pthread_mutex_unlock(&ghost_mutex);//unlocking..
-                            return ;}
-
-        if(y>240){y-=0.2f; pthread_mutex_unlock(&ghost_mutex);//unlocking..
+        if(x<650){x+=0.0001f; sleep(0.01); pthread_mutex_unlock(&ghost_mutex);//unlocking..
                             return ;}
 
-        if(y==240){exiting_gbox=false; pthread_mutex_unlock(&ghost_mutex);//unlocking..
-                                        return;}
-       
+        if(y>240){y-=0.0001f; sleep(0.01); pthread_mutex_unlock(&ghost_mutex);//unlocking..
+                            return ;}
+
+        if(y<=240){exiting_gbox=false; dir = rand_dir(); pthread_mutex_unlock(&ghost_mutex);//unlocking..
+                            return;}
+        sleep(0.01);
+        //diagnostic output..
+        cout << "gbox-exit-ifs-not-checking.." << endl;
+        pthread_mutex_unlock(&ghost_mutex);//unlocking..
+        return;       
 
     }
 

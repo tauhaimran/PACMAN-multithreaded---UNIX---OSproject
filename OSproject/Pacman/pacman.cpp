@@ -19,7 +19,9 @@ int count = 0;
 //named semaphores
 sem_t SEM_GAME_ENGINE;
 sem_t SEM_UI_THREAD;
-sem_t SEM_GHOST_THREAD;
+sem_t SEM_GHOST_THREAD_p;
+sem_t SEM_GHOST_THREAD_c;
+sem_t SEM_SC3_GBOX;
 
 //making the threads
 pthread_t game_engine_id,ui_ux_id_1,pac_id;
@@ -34,10 +36,11 @@ int gbox_exiting=0;
 MAP mapX;
 STATUS status;
 PACMAN pacman(670,605,1.0f);
-GHOST ghost1(600, 240,5.0f);
-GHOST ghost2(620, 320,5.0f);
-GHOST ghost3(660, 320,5.0f);
-GHOST ghost4(680, 320,5.0f);
+GHOST ghost1(610, 310,5.0f);
+GHOST ghost2(640, 330,5.0f);
+GHOST ghost3(670, 310,5.0f);
+GHOST ghost4(700, 330,5.0f);
+
 food_chain eatabits;
 
 //thread 1 - game engine
@@ -50,7 +53,10 @@ void *game_engine(void*arg){
 
         while (window->isOpen() or true)
         { //consumer consumes
-            sem_wait(&SEM_GAME_ENGINE);
+            pthread_mutex_lock(&main_mutex);//locking..
+                sem_wait(&SEM_GAME_ENGINE);
+               // sem_wait(&SEM_GHOST_THREAD_p);
+            pthread_mutex_unlock(&main_mutex);//locking..
              //sem_wait(&SEM_GHOST_THREAD); //2->1
             sf::Event event;
             while (window->pollEvent(event))
@@ -86,13 +92,15 @@ void *game_engine(void*arg){
             }
             pacman.move(dir,mapX); //moving pacman
 
+                
+
             //checking food +  updating score
             if(eatabits.if_eaten(pacman.sprite))
             {status.score+=10;}
             //cout << "plz work\n";
 
             if(ghost1.ghost_hit(pacman.sprite)){
-                pthread_mutex_lock(&main_mutex);//unlocking..
+                pthread_mutex_lock(&main_mutex);//locking..
                 status.lives--;
                 pacman.reset();
                 sleep(2);
@@ -100,7 +108,11 @@ void *game_engine(void*arg){
             }
            
             //wake up producer
-            sem_post(&SEM_UI_THREAD);
+            pthread_mutex_lock(&main_mutex);//locking..
+               // sem_post(&SEM_GHOST_THREAD_c);
+                sem_post(&SEM_UI_THREAD);
+            pthread_mutex_unlock(&main_mutex);//unlocking..
+            
         }
     pthread_exit(NULL);
 }
@@ -118,16 +130,26 @@ void *ghost_one(void*arg){
         { //consumer consumes
          //   ghostObj.move('L', mapX.sprite);
          //if(choosing[T_ticket]){   choosing[T_ticket]= ghostObj. }
-          sem_wait(&SEM_GHOST_THREAD); //1->0
+          //sem_wait(&SEM_GHOST_THREAD_c); //1->0
+         // sem_wait(&SEM_GAME_ENGINE);
+
+            //if ghost already exiting sem_check
+            
             if(ghost1.exiting_gbox){
+                //sem_wait(&SEM_SC3_GBOX); //1->0
                 ghost1.exit_gbox();
+                //if(!ghost1.exiting_gbox)
+                //{sem_post(&SEM_SC3_GBOX);};
+
             }
             else {
                 ghost1.move(pacman.sprite,mapX);
             }
-            sem_post(&SEM_GHOST_THREAD);//0->1
 
+            //sem_post(&SEM_GHOST_THREAD_p);
+            //sem_post(&SEM_GHOST_THREAD);//0->1
 
+         //sem_post(&SEM_UI_THREAD);
         }
     return NULL;
 }
@@ -144,14 +166,23 @@ void *ghost_two(void*arg){
         { //consumer consumes
          //   ghostObj.move('L', mapX.sprite);
          //if(choosing[T_ticket]){   choosing[T_ticket]= ghostObj. }
-          sem_wait(&SEM_GHOST_THREAD); //1->0
+          //sem_wait(&SEM_GHOST_THREAD); //1->0
+          //sem_wait(&SEM_GHOST_THREAD_c);
+          
+            //if ghost already exiting sem_check
+            
             if(ghost2.exiting_gbox){
+            //sem_wait(&SEM_SC3_GBOX); //1->0
                 ghost2.exit_gbox();
+              //  if(!ghost2.exiting_gbox)
+                 // {sem_post(&SEM_SC3_GBOX);};
             }
             else {
+                
                 ghost2.move(pacman.sprite,mapX);
             }
-            sem_post(&SEM_GHOST_THREAD);//0->1
+            //sem_post(&SEM_GHOST_THREAD);//0->1
+            //sem_post(&SEM_GHOST_THREAD_p);
 
 
         }
@@ -190,8 +221,9 @@ int main(int argc, char const *argv[])
     //unlinking all the previous semaphores
     sem_init(&SEM_GAME_ENGINE,0,0); //initial value 0 - will wait
     sem_init(&SEM_UI_THREAD,0,1); //initial value 1 - will run first
-    sem_init(&SEM_GHOST_THREAD,0,2); //initial value 3 - counting semaphore
-
+    sem_init(&SEM_GHOST_THREAD_c,0,2); //initial value 3 - counting semaphore
+    sem_init(&SEM_GHOST_THREAD_p,0,0); //initial value 3 - counting semaphore
+    //sem_init(&SEM_SC3_GBOX,0,1); //this is for scenario
     //creating semaphores
     //sem_t* sem_game_engine = sem_open(SEM_GAME_ENGINE, IPC_CREAT , 0660 , 0);
 
@@ -214,6 +246,8 @@ int main(int argc, char const *argv[])
     while (window.isOpen())
     {   //producer
         sem_wait(&SEM_UI_THREAD); //this makes game engine wait
+        
+        
          
         //cout << "Producer\n";
         
@@ -235,7 +269,7 @@ int main(int argc, char const *argv[])
         
         pacman.draw(window);
 
-    
+        
          
         window.display();  
         
