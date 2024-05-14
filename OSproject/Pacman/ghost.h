@@ -4,7 +4,7 @@
 #include <semaphore.h> 
 #include <unistd.h> 
 #include <stdio.h>
-//#include <X11/Xlib.h>
+#include <X11/Xlib.h>
 #include<stdlib.h>
 #include <time.h>
 #include <signal.h>

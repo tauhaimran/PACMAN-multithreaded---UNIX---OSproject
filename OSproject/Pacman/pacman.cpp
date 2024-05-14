@@ -20,8 +20,6 @@ int count = 0;
 sem_t SEM_GAME_ENGINE;
 sem_t SEM_UI_THREAD;
 sem_t SEM_GHOST_THREAD;
-sem_t SEM_GHOST_THREAD_p;
-sem_t SEM_GHOST_THREAD_c;
 sem_t SEM_SC3_GBOX;
 
 //making the threads
@@ -111,6 +109,7 @@ void *game_engine(void*arg){
     pthread_exit(NULL);
 }
 
+/**********************************************11111111111111111111111111111111111********************************/
 /**GHOST THREADS 1-3*/
 void *ghost_one(void*arg){
     sf::RenderWindow* window = (sf::RenderWindow*)arg;
@@ -139,12 +138,14 @@ void *ghost_one(void*arg){
             else {
                 ghost1.move(pacman.sprite,mapX);
             }
-            //sem_post(&SEM_GHOST_THREAD);//0->1
+            sem_post(&SEM_GHOST_THREAD);//0->1
 
-            sem_post(&SEM_UI_THREAD);
+         //sem_post(&SEM_UI_THREAD);
         }
     return NULL;
 }
+
+/**********************************************22222222222222222222222222222222222222********************************/
 
 void *ghost_two(void*arg){
     sf::RenderWindow* window = (sf::RenderWindow*)arg;
@@ -158,7 +159,7 @@ void *ghost_two(void*arg){
         { //consumer consumes
          //   ghostObj.move('L', mapX.sprite);
          //if(choosing[T_ticket]){   choosing[T_ticket]= ghostObj. }
-          //sem_wait(&SEM_GHOST_THREAD); //1->0
+          sem_wait(&SEM_GHOST_THREAD); //1->0
           
             //if ghost already exiting sem_check
             
@@ -172,13 +173,83 @@ void *ghost_two(void*arg){
                 
                 ghost2.move(pacman.sprite,mapX);
             }
-            //sem_post(&SEM_GHOST_THREAD);//0->1
+            sem_post(&SEM_GHOST_THREAD);//0->1
 
 
         }
     return NULL;
 }
 
+/**********************************************33333333333333333333333333333333333333********************************/
+
+void *ghost_three(void*arg){
+    sf::RenderWindow* window = (sf::RenderWindow*)arg;
+    std::cout<<"aoun jee gay"<<endl;
+    int x=650.0 , y=605.0;
+  
+
+
+
+        while (window->isOpen() or true)
+        { //consumer consumes
+         //   ghostObj.move('L', mapX.sprite);
+         //if(choosing[T_ticket]){   choosing[T_ticket]= ghostObj. }
+          sem_wait(&SEM_GHOST_THREAD); //1->0
+          
+            //if ghost already exiting sem_check
+            
+            if(ghost3.exiting_gbox){
+            //sem_wait(&SEM_SC3_GBOX); //1->0
+                ghost3.exit_gbox();
+              //  if(!ghost2.exiting_gbox)
+                 // {sem_post(&SEM_SC3_GBOX);};
+            }
+            else {
+                
+                ghost3.move(pacman.sprite,mapX);
+            }
+            sem_post(&SEM_GHOST_THREAD);//0->1
+
+
+        }
+    return NULL;
+}
+
+/**********************************************44444444444444444444444444444444444444********************************/
+
+void *ghost_four(void*arg){
+    sf::RenderWindow* window = (sf::RenderWindow*)arg;
+    std::cout<<"aoun jee gay"<<endl;
+    int x=650.0 , y=605.0;
+  
+
+
+
+        while (window->isOpen() or true)
+        { //consumer consumes
+         //   ghostObj.move('L', mapX.sprite);
+         //if(choosing[T_ticket]){   choosing[T_ticket]= ghostObj. }
+          sem_wait(&SEM_GHOST_THREAD); //1->0
+          
+            //if ghost already exiting sem_check
+            
+            if(ghost4.exiting_gbox){
+            //sem_wait(&SEM_SC3_GBOX); //1->0
+                ghost4.exit_gbox();
+              //  if(!ghost2.exiting_gbox)
+                 // {sem_post(&SEM_SC3_GBOX);};
+            }
+            else {
+                
+                ghost4.move(pacman.sprite,mapX);
+            }
+            sem_post(&SEM_GHOST_THREAD);//0->1
+
+        }
+    return NULL;
+}
+
+/**********************************************MMMMMMMMMMMMMMMMMMMMMMMMMMMM********************************/
 
 /*MAIN FUNCTION*/
 int main(int argc, char const *argv[])
@@ -211,8 +282,8 @@ int main(int argc, char const *argv[])
     //unlinking all the previous semaphores
     sem_init(&SEM_GAME_ENGINE,0,0); //initial value 0 - will wait
     sem_init(&SEM_UI_THREAD,0,1); //initial value 1 - will run first
-    sem_init(&SEM_GHOST_THREAD,0,0); //initial value 3 - counting semaphore
-    //sem_init(&SEM_SC3_GBOX,0,1); //this is for scenario
+    sem_init(&SEM_GHOST_THREAD,0,1); //initial value 3 - counting semaphore
+    sem_init(&SEM_SC3_GBOX,0,1); //this is for scenario
     //creating semaphores
     //sem_t* sem_game_engine = sem_open(SEM_GAME_ENGINE, IPC_CREAT , 0660 , 0);
 
@@ -227,8 +298,11 @@ int main(int argc, char const *argv[])
     pthread_create( &game_engine_id, NULL, game_engine , (void*)xwindow );
     
     //our ghost thread...
-    pthread_create( &g1, NULL, ghost_one , (void*)xwindow );
-    //pthread_create( &g2, NULL, ghost_two , (void*)xwindow );
+    pthread_create( &g1, NULL, ghost_one   , (void*)xwindow );
+    pthread_create( &g2, NULL, ghost_two   , (void*)xwindow );
+    pthread_create( &g3, NULL, ghost_three , (void*)xwindow );
+    pthread_create( &g4, NULL, ghost_four  , (void*)xwindow );
+    
     
 
   
@@ -262,7 +336,6 @@ int main(int argc, char const *argv[])
         
         //wake up consumer
         sem_post(&SEM_GAME_ENGINE); //lets ui thread run
-        sem_post(&SEM_GHOST_THREAD);
     }
 
     //closing the semaphores
