@@ -19,6 +19,7 @@ int count = 0;
 //named semaphores
 sem_t SEM_GAME_ENGINE;
 sem_t SEM_UI_THREAD;
+sem_t SEM_GHOST_THREAD;
 sem_t SEM_GHOST_THREAD_p;
 sem_t SEM_GHOST_THREAD_c;
 sem_t SEM_SC3_GBOX;
@@ -123,7 +124,7 @@ void *ghost_one(void*arg){
         { //consumer consumes
          //   ghostObj.move('L', mapX.sprite);
          //if(choosing[T_ticket]){   choosing[T_ticket]= ghostObj. }
-          //sem_wait(&SEM_GHOST_THREAD); //1->0
+          sem_wait(&SEM_GHOST_THREAD); //1->0
          // sem_wait(&SEM_GAME_ENGINE);
 
             //if ghost already exiting sem_check
@@ -140,7 +141,7 @@ void *ghost_one(void*arg){
             }
             //sem_post(&SEM_GHOST_THREAD);//0->1
 
-         //sem_post(&SEM_UI_THREAD);
+            sem_post(&SEM_UI_THREAD);
         }
     return NULL;
 }
@@ -210,7 +211,7 @@ int main(int argc, char const *argv[])
     //unlinking all the previous semaphores
     sem_init(&SEM_GAME_ENGINE,0,0); //initial value 0 - will wait
     sem_init(&SEM_UI_THREAD,0,1); //initial value 1 - will run first
-    //sem_init(&SEM_GHOST_THREAD,0,1); //initial value 3 - counting semaphore
+    sem_init(&SEM_GHOST_THREAD,0,0); //initial value 3 - counting semaphore
     //sem_init(&SEM_SC3_GBOX,0,1); //this is for scenario
     //creating semaphores
     //sem_t* sem_game_engine = sem_open(SEM_GAME_ENGINE, IPC_CREAT , 0660 , 0);
@@ -227,7 +228,7 @@ int main(int argc, char const *argv[])
     
     //our ghost thread...
     pthread_create( &g1, NULL, ghost_one , (void*)xwindow );
-    pthread_create( &g2, NULL, ghost_two , (void*)xwindow );
+    //pthread_create( &g2, NULL, ghost_two , (void*)xwindow );
     
 
   
@@ -261,6 +262,7 @@ int main(int argc, char const *argv[])
         
         //wake up consumer
         sem_post(&SEM_GAME_ENGINE); //lets ui thread run
+        sem_post(&SEM_GHOST_THREAD);
     }
 
     //closing the semaphores
