@@ -149,10 +149,11 @@ void *game_engine(void*arg){
            
 
                     //for speed boost..
-            if(speed_boost_count < 10 && speed_boost_runs==0){ speed_boost_count++;}
-            if(speed_boost_count == 10 && speed_boost_runs==0)
+            if(speed_boost_count < 500 && speed_boost_runs==0){ speed_boost_count++;}
+            if(speed_boost_count == 500 && speed_boost_runs==0)
             { 
                 int i =  rand()%2;
+                
                 
                 
                 if(i==0){
@@ -161,28 +162,42 @@ void *game_engine(void*arg){
                         ghost1.move(pacman.sprite,mapX); 
                         ghost1.move(pacman.sprite,mapX); 
                         ghost1.move(pacman.sprite,mapX); 
+                        ghost1.move(pacman.sprite,mapX); 
+                        ghost1.move(pacman.sprite,mapX); 
+                        ghost1.move(pacman.sprite,mapX); 
+                            ghost2.move(pacman.sprite,mapX); 
+                            ghost2.move(pacman.sprite,mapX); 
+                            ghost2.move(pacman.sprite,mapX); 
                             ghost2.move(pacman.sprite,mapX); 
                             ghost2.move(pacman.sprite,mapX); 
                             ghost2.move(pacman.sprite,mapX); 
                     ghost1.rem_speed_boost();
                     ghost2.rem_speed_boost();
+                    cout << i << endl;
                 }else{
                      ghost3.set_speed_boost();
                      ghost4.set_speed_boost();
                         ghost3.move(pacman.sprite,mapX); 
                         ghost3.move(pacman.sprite,mapX); 
                         ghost3.move(pacman.sprite,mapX); 
+                        ghost3.move(pacman.sprite,mapX); 
+                        ghost3.move(pacman.sprite,mapX); 
+                        ghost3.move(pacman.sprite,mapX); 
+                            ghost4.move(pacman.sprite,mapX); 
+                            ghost4.move(pacman.sprite,mapX); 
+                            ghost4.move(pacman.sprite,mapX); 
                             ghost4.move(pacman.sprite,mapX); 
                             ghost4.move(pacman.sprite,mapX); 
                             ghost4.move(pacman.sprite,mapX); 
                      ghost3.rem_speed_boost();
                      ghost4.rem_speed_boost();
 
+                     cout << i << endl;
                 }
 
              speed_boost_runs++;
             }
-            if(speed_boost_count >= 10 && speed_boost_runs>=1)
+            if(speed_boost_count >= 500 && speed_boost_runs>=1)
             { speed_boost_count=0; speed_boost_runs=0;}
 
 

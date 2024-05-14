@@ -28,6 +28,7 @@ private:
     float speed; 
     char dir;
     float angle;
+    bool speedy;
 
 public:
     bool exiting_gbox;
@@ -62,6 +63,7 @@ public:
         frame2 = 0;
         // Set the initial position of the sprite
         sprite.setPosition(x, y);
+        speedy=false;
         
     }
 
@@ -206,10 +208,13 @@ public:
          sprite.setPosition(x, y);
 
         // Draw the sprite to the window
-        if(frame1>0 && frame2==0){frame1--;}
-        if(frame1==0 && frame2==0){ sprite.setTexture(texture2);frame2=30;}
-        if(frame2>0 && frame1==0){frame2--;}
-        if(frame1==0 && frame2==0){ sprite.setTexture(texture1); frame1=30;}
+        if(!speedy) {
+            if(frame1>0 && frame2==0){frame1--;}
+            if(frame1==0 && frame2==0){ sprite.setTexture(texture2);frame2=30;}
+            if(frame2>0 && frame1==0){frame2--;}
+            if(frame1==0 && frame2==0){ sprite.setTexture(texture1); frame1=30;}
+        }
+            
 
         window.draw(sprite);
         pthread_mutex_unlock(&ghost_mutex);//unlocking..
@@ -240,7 +245,7 @@ public:
     }
 
 
-    void set_speed_boost(){ sprite.setTexture(speeed); }
-    void rem_speed_boost(){ sprite.setTexture(texture1); }
+    void set_speed_boost(){ pthread_mutex_lock(&ghost_mutex); sprite.setTexture(speeed); speedy=true; pthread_mutex_unlock(&ghost_mutex); }
+    void rem_speed_boost(){ pthread_mutex_lock(&ghost_mutex);  speedy=false; pthread_mutex_unlock(&ghost_mutex); }
 
 };
