@@ -13,6 +13,8 @@
 #include "phase1.h"
     using namespace std;
 
+pthread_mutex_t main_mutex = PTHREAD_MUTEX_INITIALIZER ;
+
 int count = 0;
 //named semaphores
 sem_t SEM_GAME_ENGINE;
@@ -25,18 +27,24 @@ pthread_t red_id,blue_id,yellow_id,pink_id;
 //global variables for the threads...
 bool game_running = true;
 bool paused=false;
+
 //globl resources...
 MAP mapX;
 STATUS status;
 PACMAN pacman(670,605,1.0f);
-GHOST ghostObj (660, 610,5.0f);
+GHOST ghost1(600, 240,5.0f);
+GHOST ghost2(620, 320,5.0f);
+GHOST ghost3(660, 320,5.0f);
+GHOST ghost4(680, 320,5.0f);
 food_chain eatabits;
 
 //thread 1 - game engine
 void *game_engine(void*arg){
+    
     sf::RenderWindow* window = (sf::RenderWindow*)arg;
-    int x=650.0 , y=605.0;
+    int x=650.0 , y=250.0;
     char dir = 'L';
+
 
         while (window->isOpen() or true)
         { //consumer consumes
@@ -69,6 +77,7 @@ void *game_engine(void*arg){
                 }
 
                 
+                
 
 
             }
@@ -78,6 +87,14 @@ void *game_engine(void*arg){
             if(eatabits.if_eaten(pacman.sprite))
             {status.score+=10;}
             //cout << "plz work\n";
+
+            if(ghost1.ghost_hit(pacman.sprite)){
+                pthread_mutex_lock(&main_mutex);//unlocking..
+                status.lives--;
+                pacman.reset();
+                sleep(2);
+                pthread_mutex_unlock(&main_mutex);//unlocking..
+            }
            
             //wake up producer
             sem_post(&SEM_UI_THREAD);
@@ -85,18 +102,34 @@ void *game_engine(void*arg){
     pthread_exit(NULL);
 }
 
-void *ghost(void*arg){
+/**GHOST THREADS 1-3*/
+void *ghost_one(void*arg){
     sf::RenderWindow* window = (sf::RenderWindow*)arg;
     std::cout<<"aoun jee gay"<<endl;
     int x=650.0 , y=605.0;
-    char dir = 'L';
+  
+
+
 
         while (window->isOpen() or true)
         { //consumer consumes
          //   ghostObj.move('L', mapX.sprite);
+         //if(choosing[T_ticket]){   choosing[T_ticket]= ghostObj. }
+
+            if(ghost1.exiting_gbox){
+                ghost1.exit_gbox();
+            }
+            else {
+                ghost1.move(pacman.sprite,mapX);
+            }
+
+
+
         }
     return NULL;
 }
+
+
 /*MAIN FUNCTION*/
 int main(int argc, char const *argv[])
 {
@@ -138,10 +171,13 @@ int main(int argc, char const *argv[])
     sf::RenderWindow* xwindow = &window;
     window.setPosition(sf::Vector2i(20,40));
     window.clear(sf::Color(200, 200, 200)); // Light gray color
+    
     //getting the window in a thread...
     pthread_create( &game_engine_id, NULL, game_engine , (void*)xwindow );
-    pthread_create( &red_id, NULL, ghost , (void*)xwindow );
-    //pthread_join(game_engine_id,NULL);
+    
+    //our ghost thread...
+    pthread_create( &red_id, NULL, ghost_one , (void*)xwindow );
+    
 
   
     while (window.isOpen())
@@ -154,7 +190,7 @@ int main(int argc, char const *argv[])
 
 
         //ghost.draw(window);
-        //ghostObj.draw(window);
+        ghost1.draw(window);
         
         window.draw(right_panel);
         window.draw(left_panel);

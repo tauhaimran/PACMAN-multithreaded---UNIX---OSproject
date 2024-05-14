@@ -11,7 +11,7 @@
 #include <fstream>
 #include <iomanip>
 #include <sstream>
-#include "player.h"
+// #include "player.h"
 #include "ghost.h"
 
     using namespace std;
@@ -67,9 +67,9 @@ public:
             << std::setw(2) << std::setfill('0') << seconds;
 
 
-        text.setString(oss.str());
-        text.setPosition(170, 265);
-        window.draw(text);
+           text.setString(oss.str());
+           text.setPosition(170, 265);
+         window.draw(text);
 
            pthread_mutex_unlock(&status_mutex); //unclocking
         return;

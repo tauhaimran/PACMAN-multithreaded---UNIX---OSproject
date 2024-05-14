@@ -88,6 +88,12 @@ public:
 
     }
 
+    void reset(){
+        x=670;
+        y=604;
+        sprite.setPosition(x,y);
+    }
+
     void draw(sf::RenderWindow& window) {
         // Draw the sprite to the window
         if(frame1>0 && frame2==0){frame1--;}
