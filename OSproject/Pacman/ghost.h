@@ -100,6 +100,28 @@ public:
         sprite.setPosition(x, y);
 
         //if colliding wiht the maze...
+
+        if((sprite.getGlobalBounds().intersects(mapX.gbox.getGlobalBounds())) && !exiting_gbox )
+        {
+            //sprite.setRotation(0);
+           
+            x = oldx , y = oldy;
+            sprite.setPosition(x, y);
+
+            if(px>x & hv ){ dir = 'R' ;  hv=!hv;}
+                else if(px<x & hv ){ dir = 'L' ; hv=!hv;}
+                else if(py>y & !hv){ dir = 'D' ; hv=!hv;}
+                else if(py<y & !hv){ dir = 'U' ;hv=!hv;}
+
+            
+            if(dir=='R'){ x-=0.01; angle = 0;  }//Right
+		    if(dir=='L'){ x+=0.01; angle = 0; }//Left
+		    if(dir=='U'){ y+=0.01; angle = 0; }//Up
+		    if(dir=='D'){ y-=0.01; angle = 0; }//down
+             sprite.setPosition(x, y);
+             
+            //cout << !(sprite.getGlobalBounds().intersects(mapX.background.getGlobalBounds())) << endl; //"colliding";
+        }
         
         if(mapX.internal_collision(sprite) )
         {
