@@ -20,6 +20,7 @@
 pthread_mutex_t main_mutex = PTHREAD_MUTEX_INITIALIZER ;
 pthread_mutex_t bakery_lock_mutex = PTHREAD_MUTEX_INITIALIZER ;
 
+
 int thread_tickets[6]={0,1,1,1,1,1};
 // 0 - ui/ux
 // 1,2,3,4 - ghosts
@@ -57,6 +58,7 @@ GHOST ghost1(610, 310,5.0f,'R');
 GHOST ghost2(640, 330,0.0f,'L');
 GHOST ghost3(670, 310,0.0f,'U');
 GHOST ghost4(610, 310,5.0f,'D');
+result WL;
 
 food_chain eatabits;
 
@@ -459,8 +461,6 @@ int main(int argc, char const *argv[])
         eatabits.draw_food(window);
         
         pacman.draw(window);
-
-        
          
         window.display();  
         

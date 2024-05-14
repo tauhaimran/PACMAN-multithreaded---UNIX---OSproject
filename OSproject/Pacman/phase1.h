@@ -79,3 +79,36 @@ public:
 };
 
 
+class result {
+    sf::Sprite win ,lose;
+    sf::Texture w , l;
+public:
+    result(){
+
+        
+        if(!w.loadFromFile("img/win.png"))
+        {// Error handling if the image fails to load
+            throw std::runtime_error("Failed to load Pacman texture.");}
+            
+        if(!l.loadFromFile("img/lose.png"))
+        {// Error handling if the image fails to load
+            throw std::runtime_error("Failed to load Pacman texture.");}
+
+        lose.setTexture(l);
+        win.setTexture(w);
+        win.setScale(0.5f,0.5f);
+        win.setPosition(380,150);
+        lose.setScale(0.5f,0.5f);
+        lose.setPosition(380,125);
+        }
+
+    void won(sf::RenderWindow & window)
+    {
+        window.draw(win);
+    }
+
+    void lost(sf::RenderWindow & window)
+    {
+        window.draw(lose);
+    }
+};
