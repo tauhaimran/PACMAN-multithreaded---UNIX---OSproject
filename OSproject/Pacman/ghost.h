@@ -90,10 +90,10 @@ public:
         // Update the position of the sprite
         
 
-        if(dir=='R'){ x+=0.0005; angle = 0;}//Right
-        if(dir=='L'){ x-=0.0005; angle = 0;}//Left
-        if(dir=='U'){ y-=0.0005; angle = 0;}//Up
-        if(dir=='D'){ y+=0.0005; angle = 0;}//Down
+        if(dir=='R'){ x+=0.01; angle = 0;}//Right
+        if(dir=='L'){ x-=0.01; angle = 0;}//Left
+        if(dir=='U'){ y-=0.01; angle = 0;}//Up
+        if(dir=='D'){ y+=0.01; angle = 0;}//Down
         
         
         sprite.setRotation(angle);
@@ -113,12 +113,12 @@ public:
                 else if(py>y & !hv){ dir = 'D' ; hv=!hv;}
                 else if(py<y & !hv){ dir = 'U' ;hv=!hv;}
 
-            /**
-            if(dir=='R'){ x-=0.0005; angle = 0;  }//Right
-		    if(dir=='L'){ x+=0.0005; angle = 0; }//Left
-		    if(dir=='U'){ y+=0.0005; angle = 0; }//Up
-		    if(dir=='D'){ y-=0.0005; angle = 0; }//down
-             sprite.setPosition(x, y);*/
+            
+            if(dir=='R'){ x-=0.01; angle = 0;  }//Right
+		    if(dir=='L'){ x+=0.01; angle = 0; }//Left
+		    if(dir=='U'){ y+=0.01; angle = 0; }//Up
+		    if(dir=='D'){ y-=0.01; angle = 0; }//down
+             sprite.setPosition(x, y);
              
             //cout << !(sprite.getGlobalBounds().intersects(mapX.background.getGlobalBounds())) << endl; //"colliding";
         }
@@ -131,10 +131,10 @@ public:
                 cout << "here...";
             
             
-                if(dir=='R'){ x-=25; angle = 0; }//Right
-                if(dir=='L'){ x+=25; angle = 0; }//Left
-                if(dir=='U'){ y+=25; angle = 0; }//Up
-                if(dir=='D'){ y-=25; angle = 0; }//down
+                if(dir=='R'){ x-=25.0; angle = 0; }//Right
+                if(dir=='L'){ x+=25.0; angle = 0; }//Left
+                if(dir=='U'){ y+=25.0; angle = 0; }//Up
+                if(dir=='D'){ y-=25.0; angle = 0; }//down
              //sprite.setPosition(x, y);
     
                 
@@ -186,13 +186,14 @@ public:
 
     void exit_gbox(){
 
-        pthread_mutex_lock(&ghost_mutex);//locking..
-        if(x>650){x-=1.0f; sleep(0.01); pthread_mutex_unlock(&ghost_mutex);//unlocking..
+        pthread_mutex_lock(&ghost_mutex);//locking...
+
+        if(x>650){x-=0.01f; sleep(0.01); pthread_mutex_unlock(&ghost_mutex);//unlocking..
                             return ;}
-        if(x<650){x+=1.0f; sleep(0.01); pthread_mutex_unlock(&ghost_mutex);//unlocking..
+        if(x<650){x+=0.1f; sleep(0.01); pthread_mutex_unlock(&ghost_mutex);//unlocking..
                             return ;}
 
-        if(y>240){y-=1.0f; sleep(0.01); pthread_mutex_unlock(&ghost_mutex);//unlocking..
+        if(y>240){y-=0.01f; sleep(0.01); pthread_mutex_unlock(&ghost_mutex);//unlocking..
                             return ;}
 
         if(y<=240){exiting_gbox=false; dir = rand_dir(); pthread_mutex_unlock(&ghost_mutex);//unlocking..
@@ -200,6 +201,7 @@ public:
         sleep(0.01);
         //diagnostic output..
         cout << "gbox-exit-ifs-not-checking.." << endl;
+
         pthread_mutex_unlock(&ghost_mutex);//unlocking..
         return;       
 

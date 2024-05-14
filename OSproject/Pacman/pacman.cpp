@@ -322,7 +322,7 @@ void *ghost_four(void*arg){
         { //consumer consumes
          //   ghostObj.move('L', mapX.sprite);
          //if(choosing[T_ticket]){   choosing[T_ticket]= ghostObj. }
-          //sem_wait(&SEM_GHOST_THREAD); //1->0
+          sem_wait(&SEM_GHOST_THREAD); //1->0
           //lock_resource(1);//ghost4->1
             //if ghost already exiting sem_check
 
@@ -339,8 +339,9 @@ void *ghost_four(void*arg){
                 ghost4.move(pacman.sprite,mapX);
             }
             //unlock_resource(1);//ghost4->1
-            sem_post(&SEM_GHOST_THREAD);//0->1
             pthread_mutex_unlock(&main_mutex);
+            sem_post(&SEM_GHOST_THREAD);//0->1
+            
 
         }
     return NULL;
