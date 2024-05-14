@@ -43,7 +43,8 @@ pthread_t g1,g2,g3,g4;
 //global variables for the threads...
 bool game_running = true;
 bool paused=false;
-int gbox_exiting=0;
+int EXIT=1;
+
 
 
 //globl resources...
@@ -170,16 +171,17 @@ void *ghost_one(void*arg){
             //lock_resource(4);//ghost1->4
             pthread_mutex_lock(&main_mutex);
 
-            if(ghost1.exiting_gbox){
+            if(ghost1.exiting_gbox && EXIT==1){
                 //sem_wait(&SEM_SC3_GBOX); //1->0
                 ghost1.exit_gbox();
-                gbox_exiting=1;
+                EXIT=1;
+                
                 //if(!ghost1.exiting_gbox)
                 //{sem_post(&SEM_SC3_GBOX);};
-
             }
-            else {
+             else if(!ghost1.exiting_gbox)  {
                 ghost1.move(pacman.sprite,mapX);
+                EXIT=2;
             }
             
             //unlock_resource(4);//ghost1->4
@@ -211,16 +213,20 @@ void *ghost_two(void*arg){
           //lock_resource(3);//ghost2->3
             //if ghost already exiting sem_check
             
-            if(ghost2.exiting_gbox){
+            if(ghost2.exiting_gbox && EXIT==2){
             //sem_wait(&SEM_SC3_GBOX); //1->0
                 ghost2.exit_gbox();
+                EXIT=2;
               //  if(!ghost2.exiting_gbox)
                  // {sem_post(&SEM_SC3_GBOX);};
             }
-            else {
+            else if(!ghost2.exiting_gbox)  {
                 
                 ghost2.move(pacman.sprite,mapX);
+                EXIT=3;
             }
+
+            
 
             //unlock_resource(3);//ghost2->3
             pthread_mutex_unlock(&main_mutex);
@@ -252,15 +258,16 @@ void *ghost_three(void*arg){
 
             //if ghost already exiting sem_check
             
-            if(ghost3.exiting_gbox){
+            if(ghost3.exiting_gbox && EXIT==3){
             //sem_wait(&SEM_SC3_GBOX); //1->0
                 ghost3.exit_gbox();
               //  if(!ghost2.exiting_gbox)
                  // {sem_post(&SEM_SC3_GBOX);};
             }
-            else {
+             else if(!ghost3.exiting_gbox)  {
                 
                 ghost3.move(pacman.sprite,mapX);
+                EXIT=4;
             }
             
             //unlock_resource(3);//ghost3->2
@@ -292,15 +299,17 @@ void *ghost_four(void*arg){
 
             pthread_mutex_lock(&main_mutex);
             
-            if(ghost4.exiting_gbox){
+            if(ghost4.exiting_gbox && EXIT==4){
             //sem_wait(&SEM_SC3_GBOX); //1->0
                 ghost4.exit_gbox();
+                EXIT=4;
               //  if(!ghost2.exiting_gbox)
                  // {sem_post(&SEM_SC3_GBOX);};
             }
-            else {
+             else if(!ghost4.exiting_gbox)  {
                 
                 ghost4.move(pacman.sprite,mapX);
+                EXIT=1;
             }
             //unlock_resource(1);//ghost4->1
             pthread_mutex_unlock(&main_mutex);
