@@ -53,10 +53,7 @@ void *game_engine(void*arg){
 
         while (window->isOpen() or true)
         { //consumer consumes
-            pthread_mutex_lock(&main_mutex);//locking..
-                sem_wait(&SEM_GAME_ENGINE);
-               // sem_wait(&SEM_GHOST_THREAD_p);
-            pthread_mutex_unlock(&main_mutex);//locking..
+            sem_wait(&SEM_GAME_ENGINE);
              //sem_wait(&SEM_GHOST_THREAD); //2->1
             sf::Event event;
             while (window->pollEvent(event))
@@ -100,7 +97,7 @@ void *game_engine(void*arg){
             //cout << "plz work\n";
 
             if(ghost1.ghost_hit(pacman.sprite)){
-                pthread_mutex_lock(&main_mutex);//locking..
+                pthread_mutex_lock(&main_mutex);//unlocking..
                 status.lives--;
                 pacman.reset();
                 sleep(2);
@@ -108,11 +105,7 @@ void *game_engine(void*arg){
             }
            
             //wake up producer
-            pthread_mutex_lock(&main_mutex);//locking..
-               // sem_post(&SEM_GHOST_THREAD_c);
-                sem_post(&SEM_UI_THREAD);
-            pthread_mutex_unlock(&main_mutex);//unlocking..
-            
+            sem_post(&SEM_UI_THREAD);
         }
     pthread_exit(NULL);
 }
@@ -130,7 +123,7 @@ void *ghost_one(void*arg){
         { //consumer consumes
          //   ghostObj.move('L', mapX.sprite);
          //if(choosing[T_ticket]){   choosing[T_ticket]= ghostObj. }
-          //sem_wait(&SEM_GHOST_THREAD_c); //1->0
+          //sem_wait(&SEM_GHOST_THREAD); //1->0
          // sem_wait(&SEM_GAME_ENGINE);
 
             //if ghost already exiting sem_check
@@ -145,8 +138,6 @@ void *ghost_one(void*arg){
             else {
                 ghost1.move(pacman.sprite,mapX);
             }
-
-            //sem_post(&SEM_GHOST_THREAD_p);
             //sem_post(&SEM_GHOST_THREAD);//0->1
 
          //sem_post(&SEM_UI_THREAD);
@@ -167,7 +158,6 @@ void *ghost_two(void*arg){
          //   ghostObj.move('L', mapX.sprite);
          //if(choosing[T_ticket]){   choosing[T_ticket]= ghostObj. }
           //sem_wait(&SEM_GHOST_THREAD); //1->0
-          //sem_wait(&SEM_GHOST_THREAD_c);
           
             //if ghost already exiting sem_check
             
@@ -182,7 +172,6 @@ void *ghost_two(void*arg){
                 ghost2.move(pacman.sprite,mapX);
             }
             //sem_post(&SEM_GHOST_THREAD);//0->1
-            //sem_post(&SEM_GHOST_THREAD_p);
 
 
         }
@@ -221,8 +210,7 @@ int main(int argc, char const *argv[])
     //unlinking all the previous semaphores
     sem_init(&SEM_GAME_ENGINE,0,0); //initial value 0 - will wait
     sem_init(&SEM_UI_THREAD,0,1); //initial value 1 - will run first
-    sem_init(&SEM_GHOST_THREAD_c,0,2); //initial value 3 - counting semaphore
-    sem_init(&SEM_GHOST_THREAD_p,0,0); //initial value 3 - counting semaphore
+    //sem_init(&SEM_GHOST_THREAD,0,1); //initial value 3 - counting semaphore
     //sem_init(&SEM_SC3_GBOX,0,1); //this is for scenario
     //creating semaphores
     //sem_t* sem_game_engine = sem_open(SEM_GAME_ENGINE, IPC_CREAT , 0660 , 0);
@@ -246,8 +234,6 @@ int main(int argc, char const *argv[])
     while (window.isOpen())
     {   //producer
         sem_wait(&SEM_UI_THREAD); //this makes game engine wait
-        
-        
          
         //cout << "Producer\n";
         
