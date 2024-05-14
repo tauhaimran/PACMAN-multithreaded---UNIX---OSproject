@@ -18,6 +18,49 @@
     using namespace std;
 
 pthread_mutex_t main_mutex = PTHREAD_MUTEX_INITIALIZER ;
+pthread_mutex_t bakery_lock_mutex = PTHREAD_MUTEX_INITIALIZER ;
+
+int thread_tickets[6]={0,1,1,1,1,1};
+// 0 - ui/ux
+// 1,2,3,4 - ghosts
+// 5 - game_engine
+
+void lock_resource( int thread_no ){
+
+ 
+        
+        //if resource locked
+        while(thread_tickets[thread_no]==1){
+            //busy wait loop loop;
+        }
+   
+     pthread_mutex_lock(&bakery_lock_mutex);
+     pthread_mutex_lock(&main_mutex);
+        //if resource not locked
+        for (int i = 0 ; i<6 ; i++){
+            thread_tickets[i]=1;
+        }
+        
+        thread_tickets[thread_no]=0;
+
+    pthread_mutex_lock(&bakery_lock_mutex);
+    return;
+
+}
+
+void unlock_resource( int thread_no ){
+
+  pthread_mutex_lock(&bakery_lock_mutex);
+            //if resource not locked
+        for (int i = 0 ; i<6 ; i++){
+            thread_tickets[i]=0;
+        }
+  pthread_mutex_lock(&bakery_lock_mutex);
+  return;
+
+}
+
+
 
 int count = 0;
 //named semaphores
@@ -25,6 +68,9 @@ sem_t SEM_GAME_ENGINE;
 sem_t SEM_UI_THREAD;
 sem_t SEM_GHOST_THREAD;
 sem_t SEM_SC3_GBOX;
+sem_t bakery_lock;
+
+
 
 //making the threads
 pthread_t game_engine_id,ui_ux_id_1,pac_id;
@@ -58,6 +104,8 @@ void *game_engine(void*arg){
         while (window->isOpen() or true)
         { //consumer consumes
             sem_wait(&SEM_GAME_ENGINE);
+            pthread_mutex_lock(&main_mutex);
+            //lock_resource(5);//game-engine->5
              //sem_wait(&SEM_GHOST_THREAD); //2->1
             sf::Event event;
             while (window->pollEvent(event))
@@ -101,14 +149,40 @@ void *game_engine(void*arg){
             //cout << "plz work\n";
 
             if(ghost1.ghost_hit(pacman.sprite)){
-                pthread_mutex_lock(&main_mutex);//unlocking..
+                //pthread_mutex_lock(&main_mutex);//unlocking..
                 status.lives--;
                 pacman.reset();
                 sleep(2);
-                pthread_mutex_unlock(&main_mutex);//unlocking..
-            }
+                //pthread_mutex_unlock(&main_mutex);//unlocking..
+            }  
+
+            if(ghost2.ghost_hit(pacman.sprite)){
+                //pthread_mutex_lock(&main_mutex);//unlocking..
+                status.lives--;
+                pacman.reset();
+                sleep(2);
+                //pthread_mutex_unlock(&main_mutex);//unlocking..
+            }  
+
+            if(ghost3.ghost_hit(pacman.sprite)){
+                //pthread_mutex_lock(&main_mutex);//unlocking..
+                status.lives--;
+                pacman.reset();
+                sleep(2);
+                //pthread_mutex_unlock(&main_mutex);//unlocking..
+            }   
+
+            if(ghost4.ghost_hit(pacman.sprite)){
+                //pthread_mutex_lock(&main_mutex);//unlocking..
+                status.lives--;
+                pacman.reset();
+                sleep(2);
+                //pthread_mutex_unlock(&main_mutex);//unlocking..
+            }   
            
             //wake up producer
+            //unlock_resource(5);//game-engine->5
+            pthread_mutex_unlock(&main_mutex);
             sem_post(&SEM_UI_THREAD);
         }
     pthread_exit(NULL);
@@ -120,9 +194,6 @@ void *ghost_one(void*arg){
     sf::RenderWindow* window = (sf::RenderWindow*)arg;
     std::cout<<"aoun jee gay"<<endl;
     int x=650.0 , y=605.0;
-  
-
-
 
         while (window->isOpen() or true)
         { //consumer consumes
@@ -132,7 +203,9 @@ void *ghost_one(void*arg){
          // sem_wait(&SEM_GAME_ENGINE);
 
             //if ghost already exiting sem_check
-            
+            //lock_resource(4);//ghost1->4
+            pthread_mutex_lock(&main_mutex);
+
             if(ghost1.exiting_gbox){
                 //sem_wait(&SEM_SC3_GBOX); //1->0
                 ghost1.exit_gbox();
@@ -144,6 +217,9 @@ void *ghost_one(void*arg){
             else {
                 ghost1.move(pacman.sprite,mapX);
             }
+            
+            //unlock_resource(4);//ghost1->4
+            pthread_mutex_unlock(&main_mutex);
             sem_post(&SEM_GHOST_THREAD);//0->1
 
          //sem_post(&SEM_UI_THREAD);
@@ -166,7 +242,9 @@ void *ghost_two(void*arg){
          //   ghostObj.move('L', mapX.sprite);
          //if(choosing[T_ticket]){   choosing[T_ticket]= ghostObj. }
           sem_wait(&SEM_GHOST_THREAD); //1->0
+          pthread_mutex_lock(&main_mutex);
           
+          //lock_resource(3);//ghost2->3
             //if ghost already exiting sem_check
             
             if(ghost2.exiting_gbox){
@@ -179,6 +257,9 @@ void *ghost_two(void*arg){
                 
                 ghost2.move(pacman.sprite,mapX);
             }
+
+            //unlock_resource(3);//ghost2->3
+            pthread_mutex_unlock(&main_mutex);
             sem_post(&SEM_GHOST_THREAD);//0->1
 
 
@@ -202,6 +283,9 @@ void *ghost_three(void*arg){
          //if(choosing[T_ticket]){   choosing[T_ticket]= ghostObj. }
           sem_wait(&SEM_GHOST_THREAD); //1->0
           
+          //lock_resource(2);//ghost3->2
+          pthread_mutex_lock(&main_mutex);
+
             //if ghost already exiting sem_check
             
             if(ghost3.exiting_gbox){
@@ -214,6 +298,9 @@ void *ghost_three(void*arg){
                 
                 ghost3.move(pacman.sprite,mapX);
             }
+            
+            //unlock_resource(3);//ghost3->2
+            pthread_mutex_unlock(&main_mutex);
             sem_post(&SEM_GHOST_THREAD);//0->1
 
 
@@ -235,9 +322,11 @@ void *ghost_four(void*arg){
         { //consumer consumes
          //   ghostObj.move('L', mapX.sprite);
          //if(choosing[T_ticket]){   choosing[T_ticket]= ghostObj. }
-          sem_wait(&SEM_GHOST_THREAD); //1->0
-          
+          //sem_wait(&SEM_GHOST_THREAD); //1->0
+          //lock_resource(1);//ghost4->1
             //if ghost already exiting sem_check
+
+            pthread_mutex_lock(&main_mutex);
             
             if(ghost4.exiting_gbox){
             //sem_wait(&SEM_SC3_GBOX); //1->0
@@ -249,7 +338,9 @@ void *ghost_four(void*arg){
                 
                 ghost4.move(pacman.sprite,mapX);
             }
+            //unlock_resource(1);//ghost4->1
             sem_post(&SEM_GHOST_THREAD);//0->1
+            pthread_mutex_unlock(&main_mutex);
 
         }
     return NULL;
@@ -290,6 +381,7 @@ int main(int argc, char const *argv[])
     sem_init(&SEM_UI_THREAD,0,1); //initial value 1 - will run first
     sem_init(&SEM_GHOST_THREAD,0,2); //initial value 3 - counting semaphore
     sem_init(&SEM_SC3_GBOX,0,1); //this is for scenario
+    sem_init(&bakery_lock,0,0); 
     //creating semaphores
     //sem_t* sem_game_engine = sem_open(SEM_GAME_ENGINE, IPC_CREAT , 0660 , 0);
 
@@ -316,7 +408,9 @@ int main(int argc, char const *argv[])
     {   //producer
         sem_wait(&SEM_UI_THREAD); //this makes game engine wait
          
+        //lock_resource(0); //ui/ux -> 0
         //cout << "Producer\n";
+        pthread_mutex_lock(&main_mutex);
         
         window.clear(); // Light gray color
 
@@ -340,7 +434,10 @@ int main(int argc, char const *argv[])
          
         window.display();  
         
+        //lock_resource(0); //ui/ux -> 0
+
         //wake up consumer
+        pthread_mutex_unlock(&main_mutex);
         sem_post(&SEM_GAME_ENGINE); //lets ui thread run
     }
 

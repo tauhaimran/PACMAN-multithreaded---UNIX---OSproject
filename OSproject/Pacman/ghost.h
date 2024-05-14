@@ -187,12 +187,12 @@ public:
     void exit_gbox(){
 
         pthread_mutex_lock(&ghost_mutex);//locking..
-        if(x>650){x-=0.0001f; sleep(0.01); pthread_mutex_unlock(&ghost_mutex);//unlocking..
+        if(x>650){x-=1.0f; sleep(0.01); pthread_mutex_unlock(&ghost_mutex);//unlocking..
                             return ;}
-        if(x<650){x+=0.0001f; sleep(0.01); pthread_mutex_unlock(&ghost_mutex);//unlocking..
+        if(x<650){x+=1.0f; sleep(0.01); pthread_mutex_unlock(&ghost_mutex);//unlocking..
                             return ;}
 
-        if(y>240){y-=0.0001f; sleep(0.01); pthread_mutex_unlock(&ghost_mutex);//unlocking..
+        if(y>240){y-=1.0f; sleep(0.01); pthread_mutex_unlock(&ghost_mutex);//unlocking..
                             return ;}
 
         if(y<=240){exiting_gbox=false; dir = rand_dir(); pthread_mutex_unlock(&ghost_mutex);//unlocking..
