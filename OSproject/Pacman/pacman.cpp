@@ -25,42 +25,6 @@ int thread_tickets[6]={0,1,1,1,1,1};
 // 1,2,3,4 - ghosts
 // 5 - game_engine
 
-void lock_resource( int thread_no ){
-
- 
-        
-        //if resource locked
-        while(thread_tickets[thread_no]==1){
-            //busy wait loop loop;
-        }
-   
-     pthread_mutex_lock(&bakery_lock_mutex);
-     pthread_mutex_lock(&main_mutex);
-        //if resource not locked
-        for (int i = 0 ; i<6 ; i++){
-            thread_tickets[i]=1;
-        }
-        
-        thread_tickets[thread_no]=0;
-
-    pthread_mutex_lock(&bakery_lock_mutex);
-    return;
-
-}
-
-void unlock_resource( int thread_no ){
-
-  pthread_mutex_lock(&bakery_lock_mutex);
-            //if resource not locked
-        for (int i = 0 ; i<6 ; i++){
-            thread_tickets[i]=0;
-        }
-  pthread_mutex_lock(&bakery_lock_mutex);
-  return;
-
-}
-
-
 
 int count = 0;
 //named semaphores
@@ -85,11 +49,11 @@ int gbox_exiting=0;
 //globl resources...
 MAP mapX;
 STATUS status;
-PACMAN pacman(670,605,1.0f);
-GHOST ghost1(610, 310,5.0f);
-GHOST ghost2(640, 330,5.0f);
-GHOST ghost3(670, 310,5.0f);
-GHOST ghost4(700, 330,5.0f);
+PACMAN pacman(670,605,0.0f);
+GHOST ghost1(610, 310,5.0f,'R');
+GHOST ghost2(640, 330,0.0f,'L');
+GHOST ghost3(670, 310,0.0f,'U');
+GHOST ghost4(610, 310,5.0f,'D');
 
 food_chain eatabits;
 
@@ -380,7 +344,7 @@ int main(int argc, char const *argv[])
     //unlinking all the previous semaphores
     sem_init(&SEM_GAME_ENGINE,0,0); //initial value 0 - will wait
     sem_init(&SEM_UI_THREAD,0,1); //initial value 1 - will run first
-    sem_init(&SEM_GHOST_THREAD,0,2); //initial value 3 - counting semaphore
+    sem_init(&SEM_GHOST_THREAD,0,3); //initial value 3 - counting semaphore
     sem_init(&SEM_SC3_GBOX,0,1); //this is for scenario
     sem_init(&bakery_lock,0,0); 
     //creating semaphores

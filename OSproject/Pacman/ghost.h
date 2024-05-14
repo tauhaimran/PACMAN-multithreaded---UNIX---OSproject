@@ -31,8 +31,8 @@ public:
     bool exiting_gbox;
     bool speed_boost;
 
-    GHOST(float startX, float startY, float movementSpeed) 
-        : x(startX), y(startY), speed(movementSpeed),exiting_gbox(true)
+    GHOST(float startX, float startY, float movementSpeed, char dr) 
+        : x(startX), y(startY), speed(movementSpeed),exiting_gbox(true),dir(dr)
     {
         // Load the Pacman texture
         if (!texture1.loadFromFile("img/ghostx.png") ) 
@@ -196,7 +196,7 @@ public:
         if(y>240){y-=0.01f; sleep(0.01); pthread_mutex_unlock(&ghost_mutex);//unlocking..
                             return ;}
 
-        if(y<=240){exiting_gbox=false; dir = rand_dir(); pthread_mutex_unlock(&ghost_mutex);//unlocking..
+        if(y<=240){exiting_gbox=false; pthread_mutex_unlock(&ghost_mutex);//unlocking..
                             return;}
         sleep(0.01);
         //diagnostic output..
